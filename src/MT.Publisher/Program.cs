@@ -1,6 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using MT.Publisher.Data;
+using MT.Publisher.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<StoreDbContext>(options => options.UseInMemoryDatabase("StoreDb"));
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
 
@@ -8,27 +13,14 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+var products = app.MapGroup("/products");
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
+products.MapGet("/", ProductService.GetAllProductsAsync);
+
+products.MapGet("/{name}", ProductService.GetProductsAsync);
+
+products.MapPost("/", ProductService.AddProductAsync);
+
+products.MapDelete("/{id}", ProductService.DeleteProductAsync);
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
