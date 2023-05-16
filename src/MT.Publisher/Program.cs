@@ -1,26 +1,31 @@
+
 using Microsoft.EntityFrameworkCore;
 using MT.Publisher.Data;
-using MT.Publisher.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+
+builder.Services.AddControllers();
+
+// builder.Services.Add
 builder.Services.AddDbContext<StoreDbContext>(options => options.UseInMemoryDatabase("StoreDb"));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 
-var products = app.MapGroup("/products");
+app.UseAuthorization();
 
-products.MapGet("/", ProductService.GetAllProductsAsync);
-
-products.MapGet("/{name}", ProductService.GetProductsAsync);
-
-products.MapPost("/", ProductService.AddProductAsync);
-
-products.MapDelete("/{id}", ProductService.DeleteProductAsync);
+app.MapControllers();
 
 app.Run();

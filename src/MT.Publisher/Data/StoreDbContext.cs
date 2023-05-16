@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using MT.Publisher.Data.Models;
 
 namespace MT.Publisher.Data
